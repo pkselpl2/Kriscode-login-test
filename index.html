@@ -3,36 +3,130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kriscode 모바일 로그인 테스트</title>
-<link rel="stylesheet" href="style.css">
+<title>크리스코드 모바일 테스트</title>
+<style>
+  body { font-family: "San Francisco", sans-serif; padding: 10px; }
+  input, button, textarea { font-size: 16px; margin: 5px 0; width: 100%; padding: 12px; box-sizing: border-box; }
+  button { background-color: #7CDB9C; color: white; border: none; border-radius: 8px; }
+  button:active { background-color: #5FBF84; }
+  textarea { height: 150px; resize: none; overflow: auto; -webkit-overflow-scrolling: touch; }
+</style>
 </head>
 <body>
 
-<h1>Kriscode 모바일 로그인 테스트</h1>
+<h2>크리스코드 모바일 테스트</h2>
 
+<!-- 회원가입 / 로그인 -->
 <input type="email" id="email" placeholder="이메일">
 <input type="password" id="password" placeholder="비밀번호">
+<input type="text" id="nickname" placeholder="닉네임 (회원가입 시)">
+<button onclick="signUp()">회원가입</button>
+<button onclick="logIn()">로그인</button>
 
-<button id="signupBtn">회원가입</button>
-<button id="loginBtn">로그인</button>
+<hr>
 
-<p id="status"></p>
+<!-- 코드 저장 / 불러오기 -->
+<input type="text" id="codeTitle" placeholder="코드 제목">
+<textarea id="codeContent" placeholder="여기에 HTML/CSS/JS 작성"></textarea>
+<button onclick="saveCode()">코드 저장</button>
+<button onclick="loadCode()">최신 코드 불러오기</button>
 
 <script type="module">
-import { signup, login } from "./main.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
-document.getElementById("signupBtn").onclick = () => {
+// 🔹 config.js 임포트
+import { firebaseConfig } from "./config.js";
+
+// Firebase 초기화
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUserId = "";
+
+// 회원가입
+async function signUp() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  signup(email, password);
-};
+  const nickname = document.getElementById("nickname").value;
+  if (!email || !password || !nickname) return alert("모든 정보를 입력하세요!");
 
-document.getElementById("loginBtn").onclick = () => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    currentUserId = user.uid;
+
+    await setDoc(doc(db, "users", user.uid), {
+      email, nickname, photoURL: "", createdAt: new Date()
+    });
+    alert("회원가입 완료!");
+  } catch (err) {
+    alert("회원가입 실패: " + err.message);
+  }
+}
+
+// 로그인
+async function logIn() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  login(email, password);
-};
+  if (!email || !password) return alert("이메일/비밀번호 입력!");
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    currentUserId = user.uid;
+
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    alert("로그인 완료! 닉네임: " + userDoc.data().nickname);
+  } catch (err) {
+    alert("로그인 실패: " + err.message);
+  }
+}
+
+// 코드 저장
+async function saveCode() {
+  const title = document.getElementById("codeTitle").value;
+  const content = document.getElementById("codeContent").value;
+  if (!currentUserId) return alert("로그인 먼저!");
+  if (!title || !content) return alert("코드 제목과 내용을 입력!");
+
+  try {
+    await addDoc(collection(db, "codes"), {
+      userId: currentUserId,
+      title,
+      content,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    alert("코드 저장 완료!");
+  } catch (err) {
+    alert("저장 실패: " + err.message);
+  }
+}
+
+// 최신 코드 불러오기 (로그인한 사용자 기준)
+async function loadCode() {
+  if (!currentUserId) return alert("로그인 먼저!");
+
+  const q = query(collection(db, "codes"), where("userId", "==", currentUserId), orderBy("createdAt", "desc"), limit(1));
+  const querySnapshot = await getDocs(q);
+  if (!querySnapshot.empty) {
+    const docData = querySnapshot.docs[0].data();
+    document.getElementById("codeTitle").value = docData.title;
+    document.getElementById("codeContent").value = docData.content;
+    alert("최신 코드 불러오기 완료!");
+  } else {
+    alert("저장된 코드가 없습니다.");
+  }
+}
+
+window.signUp = signUp;
+window.logIn = logIn;
+window.saveCode = saveCode;
+window.loadCode = loadCode;
+
 </script>
-
 </body>
 </html>
