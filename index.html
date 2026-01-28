@@ -3,105 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>크리스코드 모바일 로그인 테스트</title>
-<style>
-  body {
-    font-family: "San Francisco", sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 20px;
-    background-color: #f0f0f0;
-  }
-  h2 {
-    margin-bottom: 20px;
-  }
-  input {
-    width: 90%;
-    max-width: 400px;
-    padding: 15px;
-    margin: 10px 0;
-    font-size: 16px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-  }
-  button {
-    width: 90%;
-    max-width: 400px;
-    padding: 15px;
-    margin: 10px 0;
-    font-size: 16px;
-    border-radius: 10px;
-    border: none;
-    background-color: #7CDB9C;
-    color: #fff;
-  }
-  button:hover {
-    background-color: #5FBF84;
-  }
-  p {
-    margin-top: 10px;
-    font-size: 14px;
-    color: red;
-  }
-</style>
+<title>Kriscode 모바일 로그인 테스트</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h2>회원가입 / 로그인 테스트</h2>
+<h1>Kriscode 모바일 로그인 테스트</h1>
 
 <input type="email" id="email" placeholder="이메일">
 <input type="password" id="password" placeholder="비밀번호">
 
-<button onclick="signup()">회원가입</button>
-<button onclick="login()">로그인</button>
+<button id="signupBtn">회원가입</button>
+<button id="loginBtn">로그인</button>
 
 <p id="status"></p>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+import { signup, login } from "./main.js";
 
-// 🔹 Firebase 설정
-const firebaseConfig = {
-  apiKey: "AIzaSyClIIQUOrRwTXe1HVsijm1QL41oRymbzZs",
-  authDomain: "kriscodelogintest.firebaseapp.com",
-  projectId: "kriscodelogintest",
-  storageBucket: "kriscodelogintest.firebasestorage.app",
-  messagingSenderId: "612414399150",
-  appId: "1:612414399150:web:5266eab3ee40e04258833f",
-  measurementId: "G-QEM6ZVN527"
+document.getElementById("signupBtn").onclick = () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  signup(email, password);
 };
 
-// Firebase 초기화
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-// 🔹 회원가입
-async function signup() {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-    document.getElementById('status').innerText = "회원가입 성공!";
-  } catch (error) {
-    document.getElementById('status').innerText = "오류: " + error.message;
-  }
-}
-
-// 🔹 로그인
-async function login() {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    document.getElementById('status').innerText = "로그인 성공!";
-  } catch (error) {
-    document.getElementById('status').innerText = "오류: " + error.message;
-  }
-}
+document.getElementById("loginBtn").onclick = () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  login(email, password);
+};
 </script>
 
 </body>
