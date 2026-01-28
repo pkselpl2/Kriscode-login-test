@@ -1,0 +1,51 @@
+body {
+  font-family: "San Francisco", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f0f0f0;
+}
+
+h1 {
+  margin-bottom: 30px;
+  font-size: 28px;
+  color: #333;
+  text-align: center;
+}
+
+input {
+  width: 90%;
+  max-width: 400px;
+  padding: 15px;
+  margin: 10px 0;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+button {
+  width: 90%;
+  max-width: 400px;
+  padding: 15px;
+  margin: 10px 0;
+  font-size: 16px;
+  border-radius: 10px;
+  border: none;
+  background-color: #7CDB9C;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #5FBF84;
+}
+
+#status {
+  margin-top: 15px;
+  font-size: 15px;
+  color: red;
+  text-align: center;
+}
